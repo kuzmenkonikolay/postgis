@@ -1,0 +1,70 @@
+
+  <%= form_for @location, url: locations_path, html: {class: 'form-horizontal form-material'} do |f| %>
+      <div class="form-group">
+        <label class="col-md-12">Title</label>
+        <div class="col-md-12">
+          <%= f.text_field :name, class: 'form-control form-control-line' %>
+          <%= f.hidden_field :polygon_coordinates %>
+        </div>
+      </div>
+
+      <div id="map-container"></div>
+
+      <div class="form-footer">
+        <div class="pull-left">
+          <input type="button" value="Remove Polygon" id="remove-polygon" class="btn btn-danger hidden" />
+        </div>
+        <div class="pull-right">
+          <%= f.submit 'Create Location', class: 'btn btn-success' %>
+        </div>
+      </div>
+  <% end %>
+
+
+
+
+<script>
+  function initMap() {
+    var polygon;
+    var map = new google.maps.Map(document.getElementById('map-container'), {
+      center: {lat: 25.7616798, lng: -80.19179020000001},
+      zoom: 8
+    });
+
+    var drawingManager = new google.maps.drawing.DrawingManager({
+      drawingMode: google.maps.drawing.OverlayType.POLYGON,
+      drawingControl: false,
+      drawingControlOptions: {
+        position: google.maps.ControlPosition.TOP_CENTER,
+        drawingModes: ['polygon']
+      }
+    });
+    drawingManager.setMap(map);
+
+    google.maps.event.addListener(drawingManager, 'polygoncomplete', onPolygonComplete);
+    google.maps.event.addDomListener(document.getElementById('remove-polygon'), 'click', doneWithPolygon);
+
+    function onPolygonComplete(polygons) {
+      var arr = [];
+      polygon = polygons;
+      $.each(polygon.getPath().getArray(), function(index, value) {
+        arr.push([value.lat(), value.lng()]);
+      });
+      $('#location_polygon_coordinates').val(arr);
+      $('#remove-polygon').removeClass('hidden');
+      drawingManager.setDrawingMode(null);
+      drawingManager.setMap(map);
+    };
+
+    function doneWithPolygon() {
+      if (polygon != null && polygon.setMap) {
+        polygon.setMap(null);
+        polygon = null;
+      }
+      $('#location_polygon_coordinates').val('');
+      $('#remove-polygon').addClass('hidden');
+      drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYGON);
+    };
+  }
+</script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=<%= ENV['google_api'] %>&libraries=drawing&callback=initMap"></script>

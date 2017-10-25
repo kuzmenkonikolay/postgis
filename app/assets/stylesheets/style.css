@@ -1,0 +1,20 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.white-box {
+    background:#eeeeee;
+    padding: 90px;
+    margin-bottom: 30px;
+    height: inherit;
+}
+
+.form-footer {
+    margin-top: 20px;
+}
+
+.no-padding {
+    padding: 0;
+}

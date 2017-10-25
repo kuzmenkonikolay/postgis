@@ -1,0 +1,94 @@
+<%= form_for @location, url: location_path, html: {class: 'form-horizontal form-material'}, method: 'patch' do |f| %>
+    <div class="form-group">
+      <label class="col-md-12">Title</label>
+      <div class="col-md-12">
+        <%= f.text_field :name, class: 'form-control form-control-line' %>
+        <%= f.hidden_field :polygon_coordinates %>
+      </div>
+    </div>
+
+    <div id="map-container"></div>
+
+    <div class="form-footer">
+      <div class="pull-left">
+        <input type="button" value="Remove Polygon" id="remove-polygon" class="btn btn-danger hidden" />
+      </div>
+      <div class="pull-right">
+        <%= f.submit 'Update Location', class: 'btn btn-success' %>
+      </div>
+    </div>
+<% end %>
+
+
+
+
+<script>
+  function initMap() {
+    var polygon;
+    var map = new google.maps.Map(document.getElementById('map-container'), {
+      center: {lat: <%= @location.area.centroid.coordinates.first %>, lng: <%= @location.area.centroid.coordinates.last %>},
+      zoom: 8
+    });
+
+    var drawingManager = new google.maps.drawing.DrawingManager({
+      drawingMode: google.maps.drawing.OverlayType.POLYGON,
+      drawingControl: false,
+      drawingControlOptions: {
+        position: google.maps.ControlPosition.TOP_CENTER,
+        drawingModes: ['polygon']
+      }
+    });
+
+    var polygonCoords = [
+      <% @location.area.coordinates.first.each do |coord| %>
+      {lat: <%= coord.first %>, lng: <%= coord.last %>},
+      <% end %>
+    ];
+
+    // Construct the polygon.
+    var drawingManager = new google.maps.Polygon({
+      paths: polygonCoords,
+      strokeColor: '#FF0000',
+      strokeOpacity: 0.8,
+      strokeWeight: 2,
+      fillColor: '#FF0000',
+      fillOpacity: 0.35,
+      editable: true
+    });
+
+    google.maps.event.addListener(drawingManager.getPath(), 'set_at', function() {
+      onPolygonComplete(drawingManager.getPath());
+    });
+
+    google.maps.event.addListener(drawingManager.getPath(), 'insert_at', function() {
+      onPolygonComplete(drawingManager.getPath());
+    });
+
+    google.maps.event.addDomListener(document.getElementById('remove-polygon'), 'click', doneWithPolygon);
+
+    drawingManager.setMap(map);
+
+
+
+    function onPolygonComplete(polygons) {
+      var arr = [];
+      polygon = polygons;
+      $.each(polygon.getArray(), function(index, value) {
+        arr.push([value.lat(), value.lng()]);
+      });
+      $('#location_polygon_coordinates').val(arr);
+      $('#remove-polygon').removeClass('hidden');
+    };
+
+    function doneWithPolygon() {
+      if (polygon != null && polygon.setMap) {
+        polygon.setMap(null);
+        polygon = null;
+      }
+      $('#location_polygon_coordinates').val('');
+      $('#remove-polygon').addClass('hidden');
+      drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYGON);
+    };
+  }
+</script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=<%= ENV['google_api'] %>&libraries=drawing&callback=initMap"></script>

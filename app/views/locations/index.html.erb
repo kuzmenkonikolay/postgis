@@ -1,0 +1,22 @@
+<div class="table-responsive">
+  <table class="table full_image_popup filtered-table" id="kats-table">
+    <thead>
+    <tr>
+      <th>#</th>
+      <th>NAME</th>
+      <th>Created At</th>
+      <th></th>
+    </tr>
+    </thead>
+    <tbody id="kats-items">
+    <% @locations.each_with_index do |location, index| %>
+        <tr>
+          <td><%= index+1 %></td>
+          <td><%= location.name %></td>
+          <td><%= location.created_at %></td>
+          <td><a href="<%= location_path(location.id) %>" class="btn btn-default">View</a></td>
+        </tr>
+    <% end %>
+    </tbody>
+  </table>
+</div>
