@@ -27,22 +27,22 @@ class LocationsController < ApplicationController
   end
 
   def update
-    location = Location.find_by(id: params[:id])
+    @location = Location.find_by(id: params[:id])
 
-    if location.update(location_params)
-      redirect_to location_path(location.id)
+    if @location.update(location_params)
+      redirect_to location_path(@location.id)
     else
-      redirect_to edit_location_path(location.id)
+      render :edit
     end
   end
 
   def destroy
-    location = Location.find_by(id: params[:id])
+    @location = Location.find_by(id: params[:id])
 
-    if location.destroy
+    if @location.destroy
       redirect_to root_path
     else
-      redirect_to location_path(location.id)
+      redirect_to location_path(@location.id)
     end
   end
 
