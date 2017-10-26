@@ -1,4 +1,5 @@
 #map-container {
     width: auto;
     height: -webkit-fill-available;
+    max-height: 400px;
 }

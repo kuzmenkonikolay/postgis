@@ -56,19 +56,7 @@
       editable: true
     });
 
-    google.maps.event.addListener(drawingManager.getPath(), 'set_at', function() {
-      onPolygonComplete(drawingManager.getPath());
-    });
-
-    google.maps.event.addListener(drawingManager.getPath(), 'insert_at', function() {
-      onPolygonComplete(drawingManager.getPath());
-    });
-
-    google.maps.event.addDomListener(document.getElementById('remove-polygon'), 'click', doneWithPolygon);
-
-    drawingManager.setMap(map);
-
-
+    setCallbacks();
 
     function onPolygonComplete(polygons) {
       var arr = [];
@@ -81,14 +69,26 @@
     };
 
     function doneWithPolygon() {
-      if (polygon != null && polygon.setMap) {
-        polygon.setMap(null);
-        polygon = null;
-      }
       $('#location_polygon_coordinates').val('');
       $('#remove-polygon').addClass('hidden');
-      drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYGON);
+      drawingManager.setOptions({paths: polygonCoords});
+      setCallbacks();
+    };
+
+    function setCallbacks() {
+      google.maps.event.addListener(drawingManager.getPath(), 'set_at', function() {
+        onPolygonComplete(drawingManager.getPath());
+      });
+
+      google.maps.event.addListener(drawingManager.getPath(), 'insert_at', function() {
+        onPolygonComplete(drawingManager.getPath());
+      });
+
+      google.maps.event.addDomListener(document.getElementById('remove-polygon'), 'click', doneWithPolygon);
+      drawingManager.setMap(map);
     };
   }
+  $( document ).ready(function() {
+    initMap();
+  });
 </script>
-<script async defer src="https://maps.googleapis.com/maps/api/js?key=<%= ENV['google_api'] %>&libraries=drawing&callback=initMap"></script>

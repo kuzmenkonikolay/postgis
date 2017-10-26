@@ -66,5 +66,7 @@
       drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYGON);
     };
   }
+  $( document ).ready(function() {
+    initMap();
+  });
 </script>
-<script async defer src="https://maps.googleapis.com/maps/api/js?key=<%= ENV['google_api'] %>&libraries=drawing&callback=initMap"></script>
